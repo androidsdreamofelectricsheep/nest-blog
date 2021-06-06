@@ -3,6 +3,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
   ManyToOne,
   RelationCount,
 } from 'typeorm';
@@ -10,6 +11,7 @@ import * as slugify from 'slug';
 import { AbstractEntity } from './abstract-entity';
 import { UserEntity } from './user.entity';
 import { classToPlain } from 'class-transformer';
+import { RelationCountAttribute } from 'typeorm/query-builder/relation-count/RelationCountAttribute';
 
 @Entity('articles')
 export class ArticleEntity extends AbstractEntity {
@@ -26,10 +28,10 @@ export class ArticleEntity extends AbstractEntity {
   body: string;
 
   @ManyToOne((type) => UserEntity, (user) => user.favorites, { eager: true })
-  @JoinColumn()
+  @JoinTable()
   favoritedBy: UserEntity[];
 
-  @RelationCount((article: ArticleEntity) => article.favoritedBy)
+  // @RelationCount((article: ArticleEntity) => article.favoritedBy)
   favoritesCount: number;
 
   @ManyToOne((type) => UserEntity, (user) => user.articles, { eager: true })
@@ -50,7 +52,7 @@ export class ArticleEntity extends AbstractEntity {
     return classToPlain(this);
   }
 
-  toArticle(user: UserEntity) {
+  toArticle(user?: UserEntity) {
     let favorited = null;
     if (user) {
       favorited = this.favoritedBy.includes(user);
